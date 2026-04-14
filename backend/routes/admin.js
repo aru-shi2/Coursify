@@ -3,6 +3,7 @@ const {AdminModel}=require("./db")
 const bcrypt=require("bcrypt")
 const jwt=require('jsonwebtoken')
 const {z}=require("zod")
+const JWT_SECRET=process.env.SECRET_KEY;
 
 const adminRouter=Router();
 
