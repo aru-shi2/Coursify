@@ -3,14 +3,14 @@ const bcrypt=require("bcrypt")
 const jwt=require('jsonwebtoken')
 const {z}=require("zod")
 const JWT_SECRET=process.env.SECRET_KEY;
-const {CourseModel}=require("../db")
+const {PurchaseModel}=require("../db")
 
-const courseRouter=Router();
+const purchaseRouter=Router();
 
-courseRouter.post("/purchase", function(req,res){
+purchaseRouter.post("/purchase", function(req,res){
     res.send({msg:"course endpoint"})
 })
 
 module.exports={
-    courseRouter:courseRouter
+    purchaseRouter:purchaseRouter
 }

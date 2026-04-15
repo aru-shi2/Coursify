@@ -1,8 +1,9 @@
 const {Router}=require("express");
-const {UserModel}=require("./")
+const {UserModel}=require("../db")
 const bcrypt=require("bcrypt")
 const jwt=require('jsonwebtoken')
 const {z}=require("zod")
+const {UserAuth}=require("../auth")
 const JWT_SECRET=process.env.SECRET_KEY;
 
 const userRouter=Router();
@@ -24,15 +25,20 @@ userRouter.post('/signup', async function(req, res) {
     return
   }
 
-  const username=req.body.user;
-  const password=req.body.pass;
+  const {user, pass, firstname, lastname}=req.body;
 
-  const hashedPass=await bcrypt.hash(password,5)
+  const hashedPass=await bcrypt.hash(pass,5)
 
-  await UserModel.create({
-    username:username,
-    password:hashedPass
+  try{
+    await UserModel.create({
+    username:user,
+    password:hashedPass,
+    firstName:firstname,
+    lastName:lastname
   })
+}catch(e){
+  res.json({msg:"signup failed!"});
+}
 
   res.json({
     msg:"admin created successfully!"
@@ -84,6 +90,8 @@ userRouter.post('/login', async function(req, res) {
   )
 
 });
+
+app.use(UserAuth)
 
 userRouter.get('/purchase',function(req,res){
   
