@@ -3,26 +3,25 @@ const {UserModel}=require("../db")
 const bcrypt=require("bcrypt")
 const jwt=require('jsonwebtoken')
 const {z}=require("zod")
-const {UserAuth}=require("../auth")
-const JWT_SECRET=process.env.SECRET_KEY;
+require('dotenv').config();
+const JWT_SECRET=process.env.JWT_SECRET ;
 
 const userRouter=Router();
 
 userRouter.post('/signup', async function(req, res) {
 
   const users=z.object({
-    user:z.string().email(),
+    user:z.email(),
     pass:z.string().min(6,"Password must be atleast 6 characters").regex(/[a-z]/, "Password must contain atleast one lowercase letter").regex(/[A-Z]/,"Password must contain atleast one uppercase letter").regex(/[0-9]/,"Password must contain atleast one number")
   })
 
   const parsedUsers=users.safeParse(req.body);
 
   if(!parsedUsers){
-    res.json({
+    return res.json({
       msg:"incorrect format",
       error:parsedUsers.error.format()
     })
-    return
   }
 
   const {user, pass, firstname, lastname}=req.body;
@@ -31,19 +30,19 @@ userRouter.post('/signup', async function(req, res) {
 
   try{
     await UserModel.create({
-    username:user,
+    userEmail:user,
     password:hashedPass,
     firstName:firstname,
     lastName:lastname
   })
-}catch(e){
-  res.json({msg:"signup failed!"});
-}
-
-  res.json({
-    msg:"admin created successfully!"
+  return res.json({
+    msg:"user created successfully!"
   })
-});
+}catch(e){
+  console.log(e)
+  return res.json({msg:"signup failed!"});
+}
+})
 
 userRouter.post('/login', async function(req, res) {
 
@@ -65,38 +64,36 @@ userRouter.post('/login', async function(req, res) {
   const username=req.body.user;
   const password=req.body.pass;
 
-  const checkUser=await UserModel.find({
-    username:username,
+  const checkUser=await UserModel.findOne({
+    userEmail:username,
   })
 
   if(!checkUser){
-    res.status('403').json({
+    return res.status('403').json({
       msg:"Username not found!"
     })
   }
 
-  const checkPass=await bcrypt.compare(password,check.password);
+  const checkPass=await bcrypt.compare(password,checkUser.password);
 
   if(checkPass){
     const token=jwt.sign({id:checkUser._id},JWT_SECRET);
-    res.json({
+    return res.json({
       token:token,
       msg:"Logged in successfully!"
     })
   }else(
-    res.status('403').json({
+     res.status('403').json({
       msg:"incorrect info"
     })
   )
 
 });
 
-app.use(UserAuth)
-
 userRouter.get('/purchase',function(req,res){
   
 })
 
 module.exports={
-    adminRouter:userRouter
+  userRouter:userRouter
 }

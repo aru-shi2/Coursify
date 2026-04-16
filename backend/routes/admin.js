@@ -3,8 +3,8 @@ const {AdminModel}=require("../db")
 const bcrypt=require("bcrypt")
 const jwt=require('jsonwebtoken')
 const {z}=require("zod")
-const {AdminAuth}=require("../auth")
-const JWT_SECRET=process.env.SECRET_KEY;
+require('dotenv').config();
+const JWT_SECRET=process.env.JWT_SECRET;
 
 const adminRouter=Router();
 
@@ -30,17 +30,19 @@ adminRouter.post('/signup', async function(req, res) {
   const hashedPass=await bcrypt.hash(pass,5)
 
   try{
-    await UserModel.create({
-    admin:username,
-    password:hashedPass
+    await AdminModel.create({
+    adminEmail:user,
+    password:hashedPass,
+    firstName:firstname,
+    lastName:lastname
   })
-}catch(e){
-    res.json({msg:"signup failed"})
-  }
-
-  res.json({
+  return res.json({
     msg:"admin created successfully!"
   })
+}catch(e){
+   return res.json({msg:"signup failed"})
+  }
+
 });
 
 adminRouter.post('/login', async function(req, res) {
@@ -63,20 +65,20 @@ adminRouter.post('/login', async function(req, res) {
   const username=req.body.user;
   const password=req.body.pass;
 
-  const checkUser=await UserModel.find({
-    admin:username,
+  const checkAdmin=await AdminModel.findOne({
+    adminEmail:username,
   })
 
-  if(!checkUser){
+  if(!checkAdmin){
     res.status('403').json({
       msg:"Username not found!"
     })
   }
 
-  const checkPass=await bcrypt.compare(password,checkUser.password);
+  const checkPass=await bcrypt.compare(password,checkAdmin.password);
 
   if(checkPass){
-    const token=jwt.sign({id:checkUser._id},JWT_SECRET);
+    const token=jwt.sign({id:checkAdmin._id},JWT_SECRET);
     res.json({
       token:token,
       msg:"Logged in successfully!"
@@ -89,7 +91,6 @@ adminRouter.post('/login', async function(req, res) {
 
 });
 
-app.use(AdminAuth)
 
 adminRouter.post('/course',function(req,res){
 
