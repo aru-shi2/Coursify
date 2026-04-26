@@ -1,6 +1,8 @@
 const {Router}=require("express");
 const {AdminModel}=require("../db")
+const {CourseModel}=require("../db")
 const bcrypt=require("bcrypt")
+const ObjectId= mongoose.Types.ObjectId;
 const jwt=require('jsonwebtoken')
 const {z}=require("zod")
 require('dotenv').config();
@@ -91,15 +93,109 @@ adminRouter.post('/login', async function(req, res) {
 
 });
 
+app.use(adminAuth);
 
-adminRouter.post('/course',function(req,res){
+//create course
+adminRouter.post('/course',async function(req,res){
+  const id=req.adminId;
+  const course=z.object({
+    title:z.string(),
+    description:z.string(),
+    price:z.number(),
+    imageLink:z.string(),
+    adminId:z.string().refine(
+      (val)=>ObjectId.isValid(val),
+      {message:"invalid objectid"}
+    )
+  })
 
+  const parsedCourse=course.safeParse(req.body);
+
+  if(!parsedUsers){
+    res.json({
+      msg:"incorrect format",
+      error:parsedUsers.error.format()
+    })
+    return
+  }
+
+  const {title,description,price,imageLink,adminId}=req.body
+
+  try {
+    const createCourse=await CourseModel.create({
+      title:title,
+      description:description,
+      price:price,
+      imageLink:imageLink,
+      adminId:adminId
+    })
+    return res.json({
+      message:"course created successfully!",
+      courseId=createCourse._id
+    })
+  } catch (e) {
+    return res.json({message:"Something went wrong!"})
+  }
 })
 
-adminRouter.put('/course',function(req,res){
-  
+
+//update course
+adminRouter.put('/course',async function(req,res){
+  const adminId=req.adminId
+  const [title,description,price,imageLink,courseId]=req.body;
+
+  try{
+  const updateCourse=await CourseModel.updateOne(
+    {
+      _id:courseId,
+      adminId:adminId
+    },
+    {
+      title:title,
+      description:description,
+      price:price,
+      imageLink:imageLink,
+    }
+  )
+  return res.json({
+    message:"course updated!",
+    courseId:courseId
+  })
+}catch(e){
+  return res.json({message:"something went wrong"})
+}
+});
+
+
+//delete course
+adminRouter.delete('/course',function(req,res){
+  const adminId=req.adminId
+  const courseId=req.body.courseId
+
+  try{  const delCourse=deleteOne(
+      {_id:courseId}
+    )
+    res.json({
+      message:"course deleted!",
+    })
+  }catch(e){
+    res.json({message:"something went wrong"})
+  }
 })
 
+//get all course
+adminRouter.get('/course/all',async function(req,res){
+  const adminId=req.adminId
+  try{const allCourses=await CourseModel.find({adminId:adminId})
+  return res.json({
+    courses:allCourses,
+    message:"all courses"
+  })
+}
+  catch(e){
+    res.json({message:"something went wrong!"})
+  }
+})
 
 module.exports={
     adminRouter:adminRouter
