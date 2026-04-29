@@ -188,8 +188,8 @@ adminRouter.get('/course/all',async function(req,res){
   const adminId=req.adminId
   try{const allCourses=await CourseModel.find({adminId:adminId})
   return res.json({
-    courses:allCourses,
-    message:"all courses"
+    message:"all courses",
+    allCourses
   })
 }
   catch(e){

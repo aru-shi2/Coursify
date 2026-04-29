@@ -1,5 +1,6 @@
 const {Router}=require("express");
 const {UserModel}=require("../db")
+const {PurchaseModel}=require("../db")
 const bcrypt=require("bcrypt")
 const jwt=require('jsonwebtoken')
 const {z}=require("zod")
@@ -90,9 +91,13 @@ userRouter.post('/login', async function(req, res) {
 
 });
 
-userRouter.get('/purchase',function(req,res){
+app.use(userAuth)
+
+userRouter.get('/purchase/:courseid',async function(req,res){
   
 })
+
+
 
 module.exports={
   userRouter:userRouter
