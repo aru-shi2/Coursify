@@ -1,7 +1,9 @@
 const {Router}=require("express");
+const {adminAuth}=require("../middleware/adminAuth")
 const {AdminModel}=require("../db")
 const {CourseModel}=require("../db")
 const bcrypt=require("bcrypt")
+const mongoose= require("mongoose");
 const ObjectId= mongoose.Types.ObjectId;
 const jwt=require('jsonwebtoken')
 const {z}=require("zod")
@@ -93,8 +95,7 @@ adminRouter.post('/login', async function(req, res) {
 
 });
 
-app.use(adminAuth);
-
+adminRouter.use(adminAuth);
 //create course
 adminRouter.post('/course',async function(req,res){
   const id=req.adminId;
@@ -131,7 +132,7 @@ adminRouter.post('/course',async function(req,res){
     })
     return res.json({
       message:"course created successfully!",
-      courseId=createCourse._id
+      courseId:createCourse._id
     })
   } catch (e) {
     return res.json({message:"Something went wrong!"})
@@ -168,11 +169,11 @@ adminRouter.put('/course',async function(req,res){
 
 
 //delete course
-adminRouter.delete('/course',function(req,res){
+adminRouter.delete('/course',async function(req,res){
   const adminId=req.adminId
   const courseId=req.body.courseId
 
-  try{  const delCourse=deleteOne(
+  try{  const delCourse=await deleteOne(
       {_id:courseId}
     )
     res.json({

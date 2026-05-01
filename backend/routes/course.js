@@ -1,4 +1,5 @@
 const {Router}=require("express");
+const {userAuth}=require("../middleware/userAuth")
 const bcrypt=require("bcrypt")
 const jwt=require('jsonwebtoken')
 const {z}=require("zod")

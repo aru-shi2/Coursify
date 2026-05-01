@@ -1,6 +1,7 @@
 const {Router}=require("express");
+const {userAuth}=require("../middleware/userAuth")
 const {UserModel}=require("../db")
-const {PurchaseModel}=require("../db")
+const {PurchaseModel,CourseModel}=require("../db")
 const bcrypt=require("bcrypt")
 const jwt=require('jsonwebtoken')
 const {z}=require("zod")
@@ -91,14 +92,19 @@ userRouter.post('/login', async function(req, res) {
 
 });
 
-app.use(userAuth)
+userRouter.use(userAuth);
 
 userRouter.get('/purchase',async function(req,res){
   const userId=req.userId;
   try{
-    const purchasedCourses=PurchaseModel.find({
+    const purchasedCourses=await PurchaseModel.find({
     userId:userId
   })
+
+  const courseData=await CourseModel.find({
+    _id:{$in: purchasedCourses.map(x=>x.courseId)}
+  })
+
   return res.json({
     purchasedCourses
   }) 
