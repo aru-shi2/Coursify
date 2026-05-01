@@ -7,7 +7,7 @@ const {CourseModel,PurchaseModel}=require("../db")
 
 const courseRouter=Router();
 
-courseRouter.post("/purchase", userAuth, async function(req,res){
+courseRouter.post("/purchase/:courseid", userAuth, async function(req,res){
     const courseId=req.params.courseid;
       const userId=req.userId;
       try {

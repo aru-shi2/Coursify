@@ -93,8 +93,18 @@ userRouter.post('/login', async function(req, res) {
 
 app.use(userAuth)
 
-userRouter.get('/purchase/:courseid',async function(req,res){
-  
+userRouter.get('/purchase',async function(req,res){
+  const userId=req.userId;
+  try{
+    const purchasedCourses=PurchaseModel.find({
+    userId:userId
+  })
+  return res.json({
+    purchasedCourses
+  }) 
+  }catch(e){
+    res.json({message:"something went wrong"})
+  }
 })
 
 
