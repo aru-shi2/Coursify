@@ -112,15 +112,16 @@ adminRouter.post('/course',async function(req,res){
 
   const parsedCourse=course.safeParse(req.body);
 
-  if(!parsedUsers){
+  if(!parsedCourse){
     res.json({
       msg:"incorrect format",
-      error:parsedUsers.error.format()
+      error:parsedCourse.error.format()
     })
     return
   }
 
-  const {title,description,price,imageLink,adminId}=req.body
+  const adminId=req.adminId;
+  const {title,description,price,imageLink}=req.body
 
   try {
     const createCourse=await CourseModel.create({
@@ -143,7 +144,7 @@ adminRouter.post('/course',async function(req,res){
 //update course
 adminRouter.put('/course',async function(req,res){
   const adminId=req.adminId
-  const [title,description,price,imageLink,courseId]=req.body;
+  const {title,description,price,imageLink,courseId}=req.body;
 
   try{
   const updateCourse=await CourseModel.updateOne(
@@ -173,7 +174,7 @@ adminRouter.delete('/course',async function(req,res){
   const adminId=req.adminId
   const courseId=req.body.courseId
 
-  try{  const delCourse=await deleteOne(
+  try{  const delCourse=await CourseModel.deleteOne(
       {_id:courseId}
     )
     res.json({

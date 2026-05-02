@@ -4,7 +4,9 @@ const JWT_SECRET=process.env.USER_JWT_SECRET;
 
 async function userAuth(req,res,next){
     const t=req.headers.authorization;
-    const decodedInfo=jwt.verify(t,JWT_SECRET);
+    const words=t.split(" ")
+        const token=words[1];
+        const decodedInfo=jwt.verify(token,JWT_SECRET);
     if(decodedInfo){
         req.userId=decodedInfo.id;
         next()
