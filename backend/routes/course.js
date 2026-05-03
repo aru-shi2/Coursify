@@ -4,7 +4,7 @@ const bcrypt=require("bcrypt")
 const jwt=require('jsonwebtoken')
 const {z}=require("zod")
 const JWT_SECRET=process.env.SECRET_KEY;
-const {CourseModel,PurchaseModel}=require("../db")
+const {CourseModel,PurchaseModel, UserModel}=require("../db")
 
 const courseRouter=Router();
 
@@ -12,10 +12,14 @@ courseRouter.post("/purchase/:courseid", userAuth, async function(req,res){
     const courseId=req.params.courseid;
       const userId=req.userId;
       try {
-          const purchased=await PurchaseModel.create({
-        courseId:courseId,
-        userId:userId
-      })
+          await UserModel.updateOne(
+            {_id:userId},
+            {
+              "$push":{
+                purchasedCourse: courseId
+              }
+            }
+          )
       return res.json({
         message:"Course purchased successfully"
       })

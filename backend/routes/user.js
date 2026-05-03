@@ -97,12 +97,8 @@ userRouter.use(userAuth);
 userRouter.get('/purchase',async function(req,res){
   const userId=req.userId;
   try{
-    const purchasedCourses=await PurchaseModel.find({
-    userId:userId
-  })
-
   const courseData=await CourseModel.find({
-    _id:{$in: purchasedCourses.map(x=>x.courseId)}
+    _id:{$in: purchasedCourse}
   })
 
   return res.json({

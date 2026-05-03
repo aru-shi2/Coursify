@@ -6,7 +6,11 @@ const User=new Schema({
     userEmail:{type: String, required: true, unique: true},
     password:String,
     firstName: String,
-    lastName: String
+    lastName: String,
+    purchasedCourse: [{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Course'
+    }]
 })
 
 const Admin= new Schema({
@@ -22,11 +26,6 @@ const Course= new Schema({
     price:Number,
     imageLink:String,
     adminId: ObjectId
-})
-
-const Purchase=new Schema({
-    courseId:ObjectId,
-    userId:ObjectId
 })
 
 const UserModel=mongoose.model("users",User);
